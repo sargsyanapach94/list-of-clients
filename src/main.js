@@ -5,10 +5,22 @@ import axios from 'axios'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-vue/dist/bootstrap-vue.css"
 
-axios.defaults.baseURL = 'http://localhost:3000/api'
-Vue.use(BootstrapVue)
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faCoffee, faEdit, faTrashAlt, faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-new Vue({
-  el: '#app',
-  render: h => h(App)
-})
+library.add( faCoffee, faEdit, faTrashAlt, faSpinner, faTimes )
+Vue.component( 'font-awesome-icon', FontAwesomeIcon )
+Vue.config.productionTip = false
+
+axios.defaults.baseURL = 'http://localhost:3000/api'
+Vue.use( BootstrapVue )
+
+
+import ConfirmModal from './modals/ConfirmModal.vue'
+Vue.component( 'confirm-modal', ConfirmModal )
+
+new Vue( {
+    el: '#app',
+    render: h => h( App )
+} )

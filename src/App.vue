@@ -7,59 +7,36 @@
 		</b-navbar>
 	</div>
 	<b-container class="bv-example-row">
-		<b-row bg-variant="secondary">
-			<b-col>Clients</b-col>
+		<b-row class="bg-light mx-0 py-2">
+			<b-col tag="h5" class="text-info">Clients</b-col>
 			<b-col>
-				<b-btn class="float-right" id="show-modal" @click="openClientModal('Add')" size="sm" variant="outline-secondary">
+				<b-btn class="float-right" id="show-modal" @click="openClientModal('New')" size="sm" variant="outline-primary">
 					New Client
 				</b-btn>
 			</b-col>
 		</b-row>
 		<b-row>
 			<b-col>
-				<b-table bordered hover :items="items"></b-table>
+				<b-table bordered hover :items="clientsList" :fields="fields">
+					<template slot="providers" slot-scope="row">
+						<span v-for="provider in row.item.providers">{{provider.name}}, </span>
+					</template>
+					<template slot="actions" slot-scope="row">
+						<b-button size="sm" variant="outline-primary" @click="openClientModal('Edit', row.item)">Edit</b-button>
+						<confirm-modal class="d-inline" :deleteFunction="deleteMethod" :item-to-delete="row.item" itemType="client" :use-button="true" @close-confirm-modal="getClientsList"></confirm-modal>
+					</template>
+				</b-table>
 			</b-col>
 		</b-row>
 	</b-container>
 
-	<client-modal :header-text="headerText">
-		<!--
-      you can use custom content here to overwrite
-      default content
-    -->
-		<!-- <h3 slot="header">custom header</h3> -->
-	</client-modal>
+	<client-modal v-if="clientForEdit || headerText === 'New'" :showModal="showModal" @close-client-modal="closeClientModal();" :header-text="headerText" :client="clientForEdit"></client-modal>
 </div>
 </template>
 
 <script>
 import ClientsService from './services/CientsService.js'
 import ClientModal from './modals/ClientModal.vue'
-const items = [{
-		isActive: true,
-		age: 40,
-		first_name: 'Dickerson',
-		last_name: 'Macdonald'
-	},
-	{
-		isActive: false,
-		age: 21,
-		first_name: 'Larsen',
-		last_name: 'Shaw'
-	},
-	{
-		isActive: false,
-		age: 89,
-		first_name: 'Geneva',
-		last_name: 'Wilson'
-	},
-	{
-		isActive: true,
-		age: 38,
-		first_name: 'Jami',
-		last_name: 'Carney'
-	}
-]
 
 export default {
 	name: 'app',
@@ -68,31 +45,56 @@ export default {
 	},
 	data() {
 		return {
-			msg: 'Welcome to Your Vue.js App',
-			items: items,
+			clientsList: [],
 			showModal: false,
-			headerText: ''
+			showConfirmModal: false,
+			headerText: '',
+			fields: ['name', 'email', 'phone', {
+				key: 'providers',
+				label: 'Providers'
+			}, {
+				key: 'actions',
+				label: 'Actions',
+				'class': 'text-center'
+			}],
+			clientForEdit: null
 		}
 	},
 	methods: {
-		openClientModal(text) {
-			// this.headerText = text;
-			// this.showModal = true;
-            // console.log(this.showModal);
-			// this.$refs.clientModalRef.show()
-            this.$emit('open-client-modal');
+		openClientModal(text, client) {
+			this.headerText = text;
+			this.showModal = true;
+			if (client) {
+				this.clientForEdit = client;
+			}
+		},
+		closeClientModal() {
+			this.getClientsList();
+			this.showModal = false;
+			this.headerText = null;
+			this.clientForEdit = null;
+		},
+		deleteMethod: ClientsService.deleteClient,
+		getClientsList() {
+			ClientsService.getClients()
+				.then(data => {
+					this.clientsList = data.map(client => {
+						// client.providers = client.providers.map(item => {
+						// 	return item.name;
+						// });
+
+						return client;
+					});
+				})
+				.catch(error => {
+					console.log(error)
+					this.errored = true
+				})
+				.finally(() => this.loading = false)
 		}
 	},
 	created() {
-		ClientsService.getClients()
-			.then(data => {
-				console.log(data);
-			})
-			.catch(error => {
-				console.log(error)
-				this.errored = true
-			})
-			.finally(() => this.loading = false)
+		this.getClientsList();
 	}
 }
 </script>

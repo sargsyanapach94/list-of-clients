@@ -1,136 +1,113 @@
 <template>
-<b-modal ref="clientModalRef" :title="headerText + ' Clients'">
+<b-modal ref="clientModalRef" v-model="showModal" hide-header-close no-close-on-backdrop no-close-on-esc>
+	<div slot="modal-header" class="w-100">
+		<span class="float-left">{{headerText}} Clients</span>
+		<font-awesome-icon :icon="['fas', 'times']" @click="hideModal()" class="float-right font-weight-bold"></font-awesome-icon>
+	</div>
 	<b-container fluid>
-		<b-row class="mb-1">
-			<b-col cols="3">Name: </b-col>
-			<b-col>
-				<!-- <b-form-select :options="variants" v-model="headerBgVariant" /> -->
-			</b-col>
-		</b-row>
-		<b-row class="mb-1">
-			<b-col cols="3">Email: </b-col>
-			<b-col>
-				<!-- <b-form-select :options="variants" v-model="bodyBgVariant" /> -->
-			</b-col>
-		</b-row>
-		<b-row>
-			<b-col cols="3">Phone: </b-col>
-			<b-col>
-				<!-- <b-form-select :options="variants" v-model="footerBgVariant" /> -->
-			</b-col>
-		</b-row>
+		<b-form-group horizontal :label-cols="2" label-size="sm" label="Name:" label-for="input_sm">
+			<b-form-input id="input_sm" :maxlength="35" size="sm" v-model="form.name"></b-form-input>
+		</b-form-group>
+		<b-form-group horizontal :label-cols="2" label-size="sm" label="Email:" label-for="input_sm">
+			<b-form-input id="input_sm" :maxlength="60" size="sm" v-model="form.email"></b-form-input>
+		</b-form-group>
+		<b-form-group horizontal :label-cols="2" label-size="sm" label="Phone:" label-for="input_sm">
+			<b-form-input id="input_sm" :maxlength="35" size="sm" v-model="form.phone"></b-form-input>
+		</b-form-group>
+		<b-form-group horizontal :label-cols="2" label-size="sm" label="Providers:" label-for="input_sm">
+			<providers-list :client-providers="form.providers"></providers-list>
+		</b-form-group>
+
+		<div class="err-container" v-if="errorMsg && errorMsg.length">
+			<p class="text-danger" v-for="err in errorMsg">{{err.message || err.errmsg}}</p>
+		</div>
 	</b-container>
-	<div slot="modal-footer" class="w-100">
-		<p class="float-left">Modal Footer Content</p>
-		<b-btn size="sm" class="float-right" variant="primary" @click="hideModal()">
-			Close
-		</b-btn>
+
+	<div slot="modal-footer" class="w-100 text-right">
+		<confirm-modal v-if="headerText === 'Edit'" class="d-inline float-left" :deleteFunction="deleteClientMethod" :item-to-delete="client" itemType="client" :use-button="true" @close-confirm-modal="hideModal()"></confirm-modal>
+		<b-btn size="sm m-r-1" variant="outline-secondary" @click="hideModal()">Cancel</b-btn>
+		<b-btn size="sm" v-if="headerText === 'New'" variant="outline-primary" @click="saveClient()">Add Client</b-btn>
+		<b-btn size="sm" v-if="headerText === 'Edit'" variant="outline-primary" @click="updateClient()">Edit Client</b-btn>
 	</div>
 </b-modal>
 </template>
 
 <script>
+import ClientsService from '../services/CientsService.js'
+import ProvidersList from '../components/ProvidersList.vue'
+
 export default {
 	name: 'ClientModal',
+	components: {
+		'providers-list': ProvidersList
+	},
 	props: {
 		headerText: String,
-		// showModal: Boolean
+		showModal: Boolean,
+		client: Object,
 	},
 	data() {
-
-        this.$on('open-client-modal', this.showModal);
-
 		return {
-			// show: this.showModal
+			loading: false,
+			form: this.client || {
+				providers: []
+			},
+			errorMsg: []
 		}
 	},
 	methods: {
+		deleteClientMethod: ClientsService.deleteClient,
 		hideModal() {
-			// this.show = false;
-			this.$refs.clientModalRef.hide();
+			this.form = {
+				email: '',
+				name: '',
+				phone: '',
+				providers: []
+			};
+			this.$emit('close-client-modal');
 		},
-        showModal(){
-            this.$refs.clientModalRef.show();
-        }
-	},
-	computed: {
-		// show: {
-		// 	// getter
-		// 	get() {
-        //         console.log('aaaaaaa');
-		// 		return this.showModal;
-		// 	},
-		// 	// setter
-		// 	set(newValue) {
-        //         console.log(arguments);
-        //     }
-		// }
+		saveClient() {
+			this.loading = true;
+			this.errorMsg = [];
+			ClientsService.addClient(this.form).then(data => {
+					this.form = {
+						email: '',
+						name: '',
+						phone: '',
+						providers: []
+					};
+
+					this.hideModal();
+				})
+				.catch(error => {
+					this.errorMsg.push(error.response.data);
+				})
+				.finally(() => this.loading = false)
+		},
+		updateClient() {
+			this.loading = true;
+			this.errorMsg = [];
+			ClientsService.updateClient(this.client._id, this.form).then(data => {
+					this.form = {
+						email: '',
+						name: '',
+						phone: '',
+						providers: []
+					};
+
+					this.hideModal();
+				})
+				.catch(error => {
+					this.errorMsg.push(error.response.data);
+				})
+				.finally(() => this.loading = false)
+		}
 	}
 }
 </script>
 
-<style lang="css" scoped>
-.modal-mask {
-  position: fixed;
-  z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, .5);
-  display: table;
-  transition: opacity .3s ease;
-}
-
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.modal-container {
-  width: 300px;
-  margin: 0px auto;
-  padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-  transition: all .3s ease;
-  font-family: Helvetica, Arial, sans-serif;
-}
-
-.modal-header h3 {
-  margin-top: 0;
-  color: #42b983;
-}
-
-.modal-body {
-  margin: 20px 0;
-}
-
-.modal-default-button {
-  float: right;
-}
-
-/*
- * The following styles are auto-applied to elements with
- * transition="modal" when their visibility is toggled
- * by Vue.js.
- *
- * You can easily play with the modal transition by editing
- * these styles.
- */
-
-.modal-enter {
-  opacity: 0;
-}
-
-.modal-leave-active {
-  opacity: 0;
-}
-
-.modal-enter .modal-container,
-.modal-leave-active .modal-container {
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
+<style  scoped>
+.modal-dialog .modal-header .close-modal {
+	cursor: pointer;
 }
 </style>
