@@ -1,26 +1,23 @@
 <template>
 <div class="">
 	<b-btn v-if="useButton" @click="modalShow = !modalShow" size="sm" variant="outline-danger">Delete</b-btn>
-	<font-awesome-icon v-if="useIcon" :icon="['fas', 'trash-alt']" @click="modalShow = !modalShow"></font-awesome-icon>
+	<font-awesome-icon v-if="useIcon" :icon="['fas', 'trash-alt']" @click="modalShow = !modalShow" class="cursor-pointer"></font-awesome-icon>
 
 	<transition name="modal" v-if="modalShow">
 		<div class="modal-mask">
 			<div class="modal-wrapper">
 				<div class="modal-container">
-
 					<div class="modal-header text-dark">
 						<slot name="header">
 							Confirm operation
-							<font-awesome-icon :icon="['fas', 'times']" @click="cancel()" class="float-right font-weight-bold"></font-awesome-icon>
+							<font-awesome-icon :icon="['fas', 'times']" @click="cancel()" class="float-right font-weight-bold cursor-pointer"></font-awesome-icon>
 						</slot>
 					</div>
-
 					<div class="modal-body">
 						<slot name="body">
 							<div class="text-danger text-left">Are you sure to delete '{{itemToDelete.name}}' {{itemType}}!</div>
 						</slot>
 					</div>
-
 					<div class="modal-footer">
 						<slot name="footer">
 							<font-awesome-icon v-if="loading" :icon="['fas', 'spinner']" role="status" class="float-left text-success font-weight-bold"></font-awesome-icon>
@@ -39,6 +36,7 @@
 <script>
 import ClientsService from '../services/CientsService.js'
 import ProvidersService from '../services/ProvidersService.js'
+
 export default {
 	name: 'ConfirmDeletionModal',
 	props: {

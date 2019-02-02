@@ -2,7 +2,7 @@
 <b-modal ref="clientModalRef" v-model="showModal" hide-header-close no-close-on-backdrop no-close-on-esc>
 	<div slot="modal-header" class="w-100">
 		<span class="float-left">{{headerText}} Clients</span>
-		<font-awesome-icon :icon="['fas', 'times']" @click="hideModal()" class="float-right font-weight-bold"></font-awesome-icon>
+		<font-awesome-icon :icon="['fas', 'times']" @click="hideModal()" class="float-right font-weight-bold cursor-pointer"></font-awesome-icon>
 	</div>
 	<b-container fluid>
 		<b-form-group horizontal :label-cols="2" label-size="sm" label="Name:" label-for="input_sm">
@@ -106,7 +106,7 @@ export default {
 }
 </script>
 
-<style  scoped>
+<style>
 .modal-dialog .modal-header .close-modal {
 	cursor: pointer;
 }

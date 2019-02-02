@@ -10,16 +10,14 @@
 		<b-row class="bg-light mx-0 py-2">
 			<b-col tag="h5" class="text-info">Clients</b-col>
 			<b-col>
-				<b-btn class="float-right" id="show-modal" @click="openClientModal('New')" size="sm" variant="outline-primary">
-					New Client
-				</b-btn>
+				<b-btn class="float-right" id="show-modal" @click="openClientModal('New')" size="sm" variant="outline-primary"> New Client </b-btn>
 			</b-col>
 		</b-row>
 		<b-row>
 			<b-col>
-				<b-table bordered hover :items="clientsList" :fields="fields">
+				<b-table bordered hover :items="clientsList" :fields="fields" :fixed="true">
 					<template slot="providers" slot-scope="row">
-						<span v-for="provider in row.item.providers">{{provider.name}}, </span>
+						<span v-for="provider in row.item.providers"  :key="provider._id">{{provider.name}}, </span>
 					</template>
 					<template slot="actions" slot-scope="row">
 						<b-button size="sm" variant="outline-primary" @click="openClientModal('Edit', row.item)">Edit</b-button>
@@ -49,15 +47,25 @@ export default {
 			showModal: false,
 			showConfirmModal: false,
 			headerText: '',
-			fields: ['name', 'email', 'phone', {
+			fields: [{
+				key: 'name',
+				sortable: true,
+				class: ['text-truncate', 'col']
+			}, {
+				key: 'email',
+				class: ['text-truncate', 'col']
+			}, {
+				key: 'phone',
+				class: ['text-truncate', 'col']
+			}, {
 				key: 'providers',
-				label: 'Providers'
+				class: ['text-truncate', 'col']
 			}, {
 				key: 'actions',
-				label: 'Actions',
-				'class': 'text-center'
+				class: ['text-center', 'col', 'actions-col-width']
 			}],
-			clientForEdit: null
+			clientForEdit: null,
+			errored: false
 		}
 	},
 	methods: {
@@ -79,18 +87,12 @@ export default {
 			ClientsService.getClients()
 				.then(data => {
 					this.clientsList = data.map(client => {
-						// client.providers = client.providers.map(item => {
-						// 	return item.name;
-						// });
-
 						return client;
 					});
 				})
 				.catch(error => {
-					console.log(error)
-					this.errored = true
-				})
-				.finally(() => this.loading = false)
+					this.errored = true;
+				});
 		}
 	},
 	created() {
@@ -99,5 +101,12 @@ export default {
 }
 </script>
 
-<style scoped="">
+<style>
+.actions-col-width {
+	width: 130px;
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
 </style>
