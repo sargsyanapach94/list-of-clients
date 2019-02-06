@@ -17,11 +17,15 @@
 			<b-col>
 				<b-table bordered hover :items="clientsList" :fields="fields" :fixed="true">
 					<template slot="providers" slot-scope="row">
-						<span v-for="provider in row.item.providers"  :key="provider._id">{{provider.name}}, </span>
+						<span v-for="(provider, index) in row.item.providers"  :key="provider._id">
+							{{provider.name.slice(0, 15)}}
+							<span v-if="provider.name.length > 15">...</span>
+							{{index !== row.item.providers.length -1 ? ',': ''}}
+						</span>
 					</template>
 					<template slot="actions" slot-scope="row">
 						<b-button size="sm" variant="outline-primary" @click="openClientModal('Edit', row.item)">Edit</b-button>
-						<confirm-modal class="d-inline" :deleteFunction="deleteMethod" :item-to-delete="row.item" itemType="client" :use-button="true" @close-confirm-modal="getClientsList"></confirm-modal>
+						<confirm-modal class="d-inline" :deleteFunction="$_deleteClient_mixin" :item-to-delete="row.item" itemType="client" :use-button="true" @close-confirm-modal="getClientsList"></confirm-modal>
 					</template>
 				</b-table>
 			</b-col>
@@ -33,7 +37,6 @@
 </template>
 
 <script>
-import ClientsService from './services/CientsService.js'
 import ClientModal from './modals/ClientModal.vue'
 
 export default {
@@ -59,7 +62,7 @@ export default {
 				class: ['text-truncate', 'col']
 			}, {
 				key: 'providers',
-				class: ['text-truncate', 'col']
+				class: ['col']
 			}, {
 				key: 'actions',
 				class: ['text-center', 'col', 'actions-col-width']
@@ -82,9 +85,8 @@ export default {
 			this.headerText = null;
 			this.clientForEdit = null;
 		},
-		deleteMethod: ClientsService.deleteClient,
 		getClientsList() {
-			ClientsService.getClients()
+			this.$_getClients_mixin()
 				.then(data => {
 					this.clientsList = data.map(client => {
 						return client;
@@ -103,7 +105,7 @@ export default {
 
 <style>
 .actions-col-width {
-	width: 130px;
+	width: 132px;
 }
 
 .cursor-pointer {

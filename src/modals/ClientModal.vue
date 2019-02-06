@@ -24,7 +24,7 @@
 	</b-container>
 
 	<div slot="modal-footer" class="w-100 text-right">
-		<confirm-modal v-if="headerText === 'Edit'" class="d-inline float-left" :deleteFunction="deleteClientMethod" :item-to-delete="client" itemType="client" :use-button="true" @close-confirm-modal="hideModal()"></confirm-modal>
+		<confirm-modal v-if="headerText === 'Edit'" class="d-inline float-left" :deleteFunction="$_deleteClient_mixin" :item-to-delete="client" itemType="client" :use-button="true" @close-confirm-modal="hideModal()"></confirm-modal>
 		<b-btn size="sm m-r-1" variant="outline-secondary" @click="hideModal()">Cancel</b-btn>
 		<b-btn size="sm" v-if="headerText === 'New'" variant="outline-primary" @click="saveClient()">Add Client</b-btn>
 		<b-btn size="sm" v-if="headerText === 'Edit'" variant="outline-primary" @click="updateClient()">Edit Client</b-btn>
@@ -33,7 +33,6 @@
 </template>
 
 <script>
-import ClientsService from '../services/CientsService.js'
 import ProvidersList from '../components/ProvidersList.vue'
 
 export default {
@@ -56,7 +55,6 @@ export default {
 		}
 	},
 	methods: {
-		deleteClientMethod: ClientsService.deleteClient,
 		hideModal() {
 			this.form = {
 				email: '',
@@ -69,7 +67,7 @@ export default {
 		saveClient() {
 			this.loading = true;
 			this.errorMsg = [];
-			ClientsService.addClient(this.form).then(data => {
+			this.$_addClient_mixin(this.form).then(data => {
 					this.form = {
 						email: '',
 						name: '',
@@ -87,7 +85,7 @@ export default {
 		updateClient() {
 			this.loading = true;
 			this.errorMsg = [];
-			ClientsService.updateClient(this.client._id, this.form).then(data => {
+			this.$_updateClient_mixin(this.client._id, this.form).then(data => {
 					this.form = {
 						email: '',
 						name: '',

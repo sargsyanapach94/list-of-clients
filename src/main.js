@@ -20,7 +20,15 @@ Vue.use( BootstrapVue )
 import ConfirmModal from './modals/ConfirmModal.vue'
 Vue.component( 'confirm-modal', ConfirmModal )
 
+
+import ClientsMixin from './mixins/ClientsMixin.js'
+import ProvidersMixin from './mixins/ProvidersMixin.js'
+
+Vue.mixin(ClientsMixin)
+   .mixin(ProvidersMixin);
+
 new Vue( {
     el: '#app',
+    // mixins: [CientsMixin, ProvidersMixin],
     render: h => h( App )
 } )

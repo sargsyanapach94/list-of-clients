@@ -5,7 +5,7 @@
 	<b-btn size="sm ml-1" v-if="!providerToEdit._id" :disabled="!providerName || providerName.length < 3" class="align-top" variant="outline-primary" @click="addProvider()"> Add provider </b-btn>
 	<span v-else>
 		<b-btn size="sm ml-1" class="align-top" variant="outline-primary" @click="editProvider()" :disabled="!providerName || providerName.length < 3"> Edit </b-btn>
-		<b-btn size="sm mr-1" class="align-top" variant="outline-secondary" @click="cancel()">Cancel</b-btn>
+		<b-btn size="sm" class="align-top" variant="outline-secondary" @click="cancel()">Cancel</b-btn>
 	</span>
 
 	<div class="providers-list-container bg-light border border-secondary col-sm-8 rounded mt-2 p-1">
@@ -18,7 +18,7 @@
 			<div class="float-right d-inline">
 				<font-awesome-icon :icon="['fas', 'edit']" class="mr-1 cursor-pointer" @click="chooseToEditProvider(provider)"></font-awesome-icon>
 				<span @click="cancel()">
-					<confirm-modal class="d-inline text-danger cursor-pointer" :deleteFunction="deleteProviderMethod" :item-to-delete="provider" itemType="provider" :use-icon="true" @close-confirm-modal="getProvidersList"></confirm-modal>
+					<confirm-modal class="d-inline text-danger cursor-pointer" :deleteFunction="$_deleteProvider_mixin" :item-to-delete="provider" itemType="provider" :use-icon="true" @close-confirm-modal="getProvidersList"></confirm-modal>
 				</span>
 			</div>
 		</div>
@@ -27,8 +27,6 @@
 </template>
 
 <script>
-import ProvidersService from '../services/ProvidersService.js'
-
 export default {
 	name: 'ProvidersList',
 	props: {
@@ -48,9 +46,8 @@ export default {
 		}
 	},
 	methods: {
-		deleteProviderMethod: ProvidersService.deleteProvider,
 		addProvider() {
-			ProvidersService.addProvider({
+			this.$_addProvider_mixin({
 					name: this.providerName
 				}).then(data => {
 					this.providersList.push(data);
@@ -62,7 +59,7 @@ export default {
 				.finally(() => this.loading = false)
 		},
 		editProvider() {
-			ProvidersService.updateProvider(this.providerToEdit._id, {
+			this.$_updateProvider_mixin(this.providerToEdit._id, {
 					name: this.providerName
 				}).then(data => {
 					this.providerToEdit.name = data.name;
@@ -88,7 +85,7 @@ export default {
 			}
 		},
 		getProvidersList() {
-			ProvidersService.getProviders()
+			this.$_getProviders_mixin()
 				.then(data => {
 					this.providersList = data;
 				})

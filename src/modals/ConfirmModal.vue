@@ -34,9 +34,6 @@
 </template>
 
 <script>
-import ClientsService from '../services/CientsService.js'
-import ProvidersService from '../services/ProvidersService.js'
-
 export default {
 	name: 'ConfirmDeletionModal',
 	props: {
